@@ -1,4 +1,6 @@
 import react, { useState } from 'react';
+import { InputGroup, Input, Button } from 'reactstrap';
+import '../styling/searchbar.css'
 
 function Movies() {
     const [movie, setMovie] = useState([])
@@ -6,6 +8,7 @@ function Movies() {
 
     const searchMovie = () => {
         let movieName = searchContent
+        console.log(`The search content is: ${movieName}.`)
         fetch(`http://sefdb02.qut.edu.au:3000/movies/search/?title=${movieName}`)
             .then(res => res.json())
             .then(data => setMovie(data))
@@ -18,10 +21,15 @@ function Movies() {
     }
 
     return (
-        <div>
-            <input id="myId" type="search" onChange={inputHandler}></input>
-            <button onClick={searchMovie}>click me</button>
-        </div>
+        <form className='search-container' onSubmit={event => {
+            event.preventDefault();
+        }}>
+            <h2>Search by movie title</h2>
+            <InputGroup>
+                <Input onChange={inputHandler} />
+                <Button onClick={searchMovie} type='submit' className='search-btn'>Search</Button>
+            </InputGroup>
+        </form>
     )
 }
 

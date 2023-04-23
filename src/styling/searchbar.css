@@ -1,0 +1,13 @@
+.search-container {
+    width: 50%;
+    margin: auto;
+    margin-top: 10%;
+}
+
+.search-container h2 {
+    margin-bottom: 1.5rem;
+}
+
+.search-btn {
+    width: 7rem;
+}
