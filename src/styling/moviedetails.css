@@ -1,0 +1,23 @@
+.movie-details-container {
+    display: flex;    
+    margin-left: 3rem;
+    margin-right: 3rem;
+  }
+  
+.movie-details-container > div {
+    background-color: #f1f1f1;
+    margin: 10px;
+    padding: 20px;
+}
+
+.movie-details {
+    flex: 2;
+}
+
+.movie-poster {
+    flex: 1;
+}
+
+.movie-poster > img {
+    width: 25rem;
+}

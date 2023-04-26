@@ -74,9 +74,7 @@ function MoviesSearch() {
 
     if (searchParams.get("id") !== null) {
         return (
-            <>
-                <MovieDetails id={searchParams.get("id")} />
-            </>
+            <MovieDetails id={searchParams.get("id")} />
         )
     }
 
@@ -85,7 +83,7 @@ function MoviesSearch() {
             <form className='container' onSubmit={event => {
                 event.preventDefault();
             }}
-                style={{ marginTop: "10rem" }}>
+                style={{ marginTop: "5rem" }}>
                 <h2>Search by movie title</h2>
                 <InputGroup>
                     <Input onChange={inputHandler} />
