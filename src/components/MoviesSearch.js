@@ -25,8 +25,6 @@ function MoviesSearch() {
 
     let query = {}
 
-    console.log(`\n\n\nSearch params: ${searchParams} \n\n\n`);
-
     let url = `http://sefdb02.qut.edu.au:3000/movies/search?`;
 
     const searchMovie = () => {

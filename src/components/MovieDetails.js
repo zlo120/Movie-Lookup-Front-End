@@ -10,18 +10,18 @@ function MovieDetails(props) {
     useEffect(() => {
         let url = `http://sefdb02.qut.edu.au:3000/movies/data/${id}`
         fetch(url)
-        .then(res => res.json())
-        .then(data => {setMovie(data)})
+            .then(res => res.json())
+            .then(data => { setMovie(data) })
     }, []);
 
     return (
         <div className='movie-details-container'>
-            <div className='movie-details'>            
+            <div className='movie-details'>
                 <h1>{movie.title}</h1>
                 <p>Released in: {movie.year}</p>
             </div>
 
-            <div className='movie-poster'>    
+            <div className='movie-poster'>
                 <img src={movie.poster} alt={movie.title} />
             </div>
         </div>
