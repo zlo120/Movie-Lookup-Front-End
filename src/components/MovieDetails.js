@@ -7,22 +7,12 @@ function MovieDetails(props) {
     let id = props.id;
 
     const [movie, setMovie] = useState([]);
-    const [actors, setActors] = useState([]);
+    const [principals, setPrincipals] = useState([]);
     useEffect(() => {
         let url = `http://sefdb02.qut.edu.au:3000/movies/data/${id}`
         fetch(url)
             .then(res => res.json())
-            .then(data => { setMovie(data); return data })
-            .then(data => {
-
-                let actors = data.principals.filter(person => {
-                    if (person.category === "actor" || person.category === "actress") {
-                        return person;
-                    }
-                });
-
-                setActors(actors);
-            })
+            .then(data => { setMovie(data); setPrincipals(data.principals); return data });
     }, []);
 
     return (
@@ -33,7 +23,7 @@ function MovieDetails(props) {
 
                 <ul>
                     {
-                        actors.map(person => {
+                        principals.map(person => {
                             let link = `/actor?id=${person.id}`
                             return <li><Link to={link}>{person.name}</Link></li>
                         })

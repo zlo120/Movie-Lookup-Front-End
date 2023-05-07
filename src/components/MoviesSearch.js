@@ -9,6 +9,7 @@ import "ag-grid-community/styles/ag-theme-balham.css"
 
 function MoviesSearch() {
     const [searchContent, setSearchContent] = useState([])
+    const [searchYear, setSearchYear] = useState([])
     const [rowData, setRowData] = useState([])
 
     const columns = [
@@ -23,26 +24,21 @@ function MoviesSearch() {
     const navigate = useNavigate();
     let [searchParams, setSearchParams] = useSearchParams();
 
-    let query = {}
-
-    let url = `http://sefdb02.qut.edu.au:3000/movies/search?`;
-
     const searchMovie = () => {
+        let url = `http://sefdb02.qut.edu.au:3000/movies/search?`;
+
         let movieName = searchContent;
-        query = { title: movieName }
+        let movieYear = searchYear;
 
-        if (query.title !== undefined) {
-            url += `title=${query.title}&`
+        if (movieName !== undefined) {
+            url += `title=${movieName}&`
         }
 
-        if (query.year !== undefined) {
-            url += `year=${query.year}&`
+        if (movieYear !== undefined) {
+            url += `year=${movieYear}&`
         }
 
-        if (query.page !== undefined) {
-            url += `page=${query.page}`
-        }
-
+        console.log(url)
         fetch(url)
             .then(res => res.json())
             .then(data => data.data)
@@ -62,12 +58,50 @@ function MoviesSearch() {
             .then(movies => setRowData(movies));
     }
 
-    const inputHandler = (e) => {
+    const initialSearch = () => {
+        let url = `http://sefdb02.qut.edu.au:3000/movies/search?`;
+
+        let year = searchParams.get("year");
+        let title = searchParams.get("title");
+
+        if (title !== "undefined" && title !== null) {
+            url += `title=${title}&`
+        }
+
+        if (year !== "undefined" && year !== null) {
+            url += `year=${year}&`
+        }
+
+        console.log(url)
+        fetch(url)
+            .then(res => res.json())
+            .then(data => data.data)
+            .then(data => {
+                return data.map(movie => {
+                    return {
+                        title: movie.title,
+                        year: movie.year,
+                        imdbID: movie.imdbID,
+                        imdbRating: movie.imdbRating,
+                        rottenTomatoesRating: movie.rottenTomatoesRating,
+                        metacriticRating: movie.metacriticRating,
+                        classification: movie.classification
+                    }
+                });
+            })
+            .then(movies => setRowData(movies));
+    }
+
+    const titleInputHandler = (e) => {
         setSearchContent(e.target.value.toLowerCase());
     }
 
+    const yearInputHandler = (e) => {
+        setSearchYear(e.target.value);
+    }
+
     useEffect(() => {
-        searchMovie();
+        initialSearch();
     }, []);
 
     if (searchParams.get("id") !== null) {
@@ -84,7 +118,8 @@ function MoviesSearch() {
                 style={{ marginTop: "5rem" }}>
                 <h2>Search by movie title</h2>
                 <InputGroup>
-                    <Input onChange={inputHandler} />
+                    <Input onChange={titleInputHandler} placeholder='search movie title' />
+                    <Input onChange={yearInputHandler} type='number' placeholder='year' className='yearInput' />
                     <Button onClick={searchMovie} type='submit' className='search-btn'>Search</Button>
                 </InputGroup>
             </form>

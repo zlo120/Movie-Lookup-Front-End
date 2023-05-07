@@ -7,6 +7,19 @@ function Actor() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [actor, setActor] = useState([]);
 
+    const getActor = (id, bearerToken) => {
+        return fetch(`http://sefdb02.qut.edu.au:3000/people/${id}`, {
+            headers: { Authorization: `Bearer ${bearerToken}` }
+        })
+            .then(res => res.json())
+            .then(res => {
+                return res;
+            })
+            .catch((error) => {
+                console.log(`We ran into an error: ${error}`);
+            })
+    }
+
     const handleExpiredJWT = (refreshToken) => {
         let body = {
             "refreshToken": refreshToken
@@ -22,33 +35,30 @@ function Actor() {
         })
             .then(res => res.json())
             .then(res => {
-                localStorage.setItem("bearerToken", res.bearerToken.token);
-                localStorage.setItem("refreshToken", res.refreshToken.token)
+                console.log(res);
+                return res;
             })
-    }
-
-    const getActor = (id, bearerToken) => {
-        return fetch(`http://sefdb02.qut.edu.au:3000/people/${id}`, {
-            headers: { Authorization: `Bearer ${bearerToken}` }
-        })
-            .then(res => res.json())
-            .catch((error) => {
-                console.log(`We ran into an error: ${error}`);
+            .then(res => {
+                if (res.error === true && res.message === "JWT token has expired") {
+                    navigate('/login');
+                } else {
+                    localStorage.setItem("bearerToken", res.bearerToken.token);
+                    localStorage.setItem("refreshToken", res.refreshToken.token);
+                    getActor(searchParams.get("id"), res.bearerToken.token)
+                        .then(res => setActor(res));
+                }
             })
     }
 
     useEffect(() => {
         let bearerToken = localStorage.getItem("bearerToken");
-
+        let refreshToken = localStorage.getItem("refreshToken");
         if (searchParams.get("id") !== null && bearerToken !== "null") {
             const id = searchParams.get("id");
             getActor(id, bearerToken)
                 .then(res => {
                     if (res.error === true && res.message === "JWT token has expired") {
-                        console.log("JWT expired...")
-                        // handleExpiredJWT();
-                        getActor(id, bearerToken)
-                            .then(res => setActor(res));
+                        handleExpiredJWT(refreshToken);
                     } else {
                         return setActor(res);
                     }

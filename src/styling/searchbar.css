@@ -1,13 +1,17 @@
 .search-container {
-    width: 50%;
+    max-width: 70%;
     margin: auto;
-    margin-top: 5%;
+    margin-top: 25%;
 }
 
-.search-container h2 {
+h2 {
     margin-bottom: 1.5rem;
 }
 
 .search-btn {
     width: 7rem;
+}
+
+.yearInput {
+    max-width: 15%;
 }
