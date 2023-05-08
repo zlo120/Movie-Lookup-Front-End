@@ -22,9 +22,9 @@ function Landing() {
     }
 
     return (
-        <div className='container'>
+        <div className='container landing-page'>
             <h1>Welcome to My Movie Lookup</h1>
-            <form className='container' onSubmit={event => {
+            <form onSubmit={event => {
                 event.preventDefault();
             }} >
                 <div className='search-container'>

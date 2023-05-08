@@ -1,13 +1,19 @@
-import { InputGroup, Input, Button, InputGroupText, FormGroup, Form, Label, Col } from 'reactstrap';
+import { InputGroup, Input, Button, InputGroupText, FormGroup, Form, Label, Col, Alert } from 'reactstrap';
 import { useNavigate } from 'react-router';
-import "ag-grid-community/styles/ag-grid.css"
-import { useState } from 'react';
-import '../styling/form.css'
+import { useSearchParams } from 'react-router-dom';
+import "ag-grid-community/styles/ag-grid.css";
+import { useState, useEffect } from 'react';
+import '../styling/form.css';
+import '../styling/alert.css';
 
 function Login() {
     const [userEmail, setUserEmail] = useState([]);
     const [userPassword, setUserPasswordEmail] = useState([]);
+    const [visible, setVisible] = useState(false);
+    const [params, setParams] = useSearchParams();
     const navigate = useNavigate();
+
+    const onDismiss = () => setVisible(false);
 
     const updateUserEmail = (e) => {
         setUserEmail(e.target.value.toLowerCase());
@@ -42,36 +48,49 @@ function Login() {
             });
     }
 
-    return (
-        <Form className='form' onSubmit={(event) => {
-            event.preventDefault();
-        }}>
-            <h2>Log In</h2>
-            <FormGroup row>
-                <Label for="email" sm={2}>
-                    Email
-                </Label>
-                <Col sm={10}>
-                    <InputGroup>
-                        <InputGroupText>@</InputGroupText>
-                        <Input id='email' type='email' onChange={updateUserEmail} required />
-                    </InputGroup>
-                </Col>
-            </FormGroup>
 
-            <FormGroup row>
-                <Label for="password" sm={2}>
-                    Password
-                </Label>
-                <Col sm={10}>
-                    <InputGroup>
-                        <InputGroupText>&#128274;</InputGroupText>
-                        <Input id='password' onChange={updateUserPassword} type='password' required />
-                    </InputGroup>
-                </Col>
-            </FormGroup>
-            <Button type='submit' onClick={handleLogin} className='form-submit-btn'>Login</Button>
-        </Form>
+    useEffect(() => {
+        console.log(params.get('id'));
+        if (params.get('id') === 'created') {
+            setVisible(true);
+        }
+    }, [])
+
+    return (
+        <>
+            <Alert className='my-alert' color="success" isOpen={visible} toggle={onDismiss}>
+                Your account has been created!
+            </Alert>
+            <Form className='form' onSubmit={(event) => {
+                event.preventDefault();
+            }}>
+                <h2>Log In</h2>
+                <FormGroup row>
+                    <Label for="email" sm={2}>
+                        Email
+                    </Label>
+                    <Col sm={10}>
+                        <InputGroup>
+                            <InputGroupText>@</InputGroupText>
+                            <Input id='email' type='email' onChange={updateUserEmail} required />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
+
+                <FormGroup row>
+                    <Label for="password" sm={2}>
+                        Password
+                    </Label>
+                    <Col sm={10}>
+                        <InputGroup>
+                            <InputGroupText>&#128274;</InputGroupText>
+                            <Input id='password' onChange={updateUserPassword} type='password' required />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
+                <Button type='submit' onClick={handleLogin} className='form-submit-btn'>Login</Button>
+            </Form>
+        </>
     );
 }
 

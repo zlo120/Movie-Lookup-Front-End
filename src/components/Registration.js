@@ -1,12 +1,23 @@
-import { InputGroup, Input, Button, InputGroupText, FormGroup, Form, Label, Col } from 'reactstrap';
+import { InputGroup, Input, Button, InputGroupText, FormGroup, Form, Label, Col, Alert } from 'reactstrap';
 import "ag-grid-community/styles/ag-grid.css"
+import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import '../styling/form.css'
+import '../styling/alert.css'
 
 function Register() {
     const [userEmail, setUserEmail] = useState([]);
     const [userPassword, setUserPasswordEmail] = useState([]);
     const [userConfirmationPassword, setUserConfirmationPassword] = useState([]);
+    const [existsAlertVisible, setExistsAlertVisible] = useState(false);
+    const [matchingPasswordsAlert, setMatchingPasswordsAlert] = useState(false);
+
+    const navigate = useNavigate();
+
+    const onDismiss = () => {
+        setExistsAlertVisible(false)
+        setMatchingPasswordsAlert(false)
+    };
 
     const updateUserEmail = (e) => {
         setUserEmail(e.target.value.toLowerCase());
@@ -22,6 +33,15 @@ function Register() {
 
     const handleSubmit = () => {
 
+        if (userPassword !== userConfirmationPassword) {
+            console.log("Passwords don't match...");
+            if (existsAlertVisible) {
+                setExistsAlertVisible(false);
+            }
+            setMatchingPasswordsAlert(true);
+            return;
+        }
+
         let body = {
             "email": userEmail,
             "password": userPassword
@@ -36,51 +56,73 @@ function Register() {
             body: JSON.stringify(body)
         })
             .then(res => res.json())
-            .then(res => console.log(res));
+            .then(res => {
+                if (res.error === true && res.message === "User already exists") {
+                    if (matchingPasswordsAlert) {
+                        setMatchingPasswordsAlert(false);
+                    }
+                    setExistsAlertVisible(true);
+                } else if (res.message === "User created") {
+                    navigate('/login?id=created')
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
     }
 
     return (
-        <Form className='form' onSubmit={(event) => {
-            event.preventDefault();
-        }}>
-            <h2>Register</h2>
-            <FormGroup row>
-                <Label for="email" sm={2}>
-                    Email
-                </Label>
-                <Col sm={10}>
-                    <InputGroup>
-                        <InputGroupText>@</InputGroupText>
-                        <Input id='email' type='email' onChange={updateUserEmail} required />
-                    </InputGroup>
-                </Col>
-            </FormGroup>
+        <>
+            <div className='container'>
+                <Alert className='my-alert' color="danger" isOpen={existsAlertVisible} toggle={onDismiss}>
+                    A user with that email already exists!
+                </Alert>
+                <Alert className='my-alert' color="danger" isOpen={matchingPasswordsAlert} toggle={onDismiss}>
+                    Passwords don't match!
+                </Alert>
+            </div>
+            <Form className='form' onSubmit={(event) => {
+                event.preventDefault();
+            }}>
+                <h2>Register</h2>
+                <FormGroup row>
+                    <Label for="email" sm={2}>
+                        Email
+                    </Label>
+                    <Col sm={10}>
+                        <InputGroup>
+                            <InputGroupText>@</InputGroupText>
+                            <Input id='email' type='email' onChange={updateUserEmail} required />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
 
-            <FormGroup row>
-                <Label for="password" sm={2}>
-                    Password
-                </Label>
-                <Col sm={10}>
-                    <InputGroup>
-                        <InputGroupText>&#128274;</InputGroupText>
-                        <Input id='password' onChange={updateUserPassword} type='password' required />
-                    </InputGroup>
-                </Col>
-            </FormGroup>
+                <FormGroup row>
+                    <Label for="password" sm={2}>
+                        Password
+                    </Label>
+                    <Col sm={10}>
+                        <InputGroup>
+                            <InputGroupText>&#128274;</InputGroupText>
+                            <Input id='password' onChange={updateUserPassword} type='password' required />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
 
-            <FormGroup row>
-                <Label for="confirmation-password" sm={2}>
-                    Password
-                </Label>
-                <Col sm={10}>
-                    <InputGroup>
-                        <InputGroupText>&#128274;</InputGroupText>
-                        <Input id='confirmation-password' onChange={updateUserConfirmationPassword} type='password' required />
-                    </InputGroup>
-                </Col>
-            </FormGroup>
-            <Button type='submit' onClick={handleSubmit} className='form-submit-btn'>Submit</Button>
-        </Form>
+                <FormGroup row>
+                    <Label for="confirmation-password" sm={2}>
+                        Confirm Password
+                    </Label>
+                    <Col sm={10}>
+                        <InputGroup>
+                            <InputGroupText>&#128274;</InputGroupText>
+                            <Input id='confirmation-password' onChange={updateUserConfirmationPassword} type='password' required />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
+                <Button type='submit' onClick={handleSubmit} className='form-submit-btn'>Submit</Button>
+            </Form>
+        </>
     );
 }
 
