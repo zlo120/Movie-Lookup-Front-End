@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { InputGroup, Input, Button } from 'reactstrap';
 import '../styling/searchbar.css'
+import bgImage from '../images/dvd-collection.jpg'
 
 function Landing() {
     const [searchTitle, setSearchTitle] = useState();
@@ -22,18 +23,18 @@ function Landing() {
     }
 
     return (
-        <div className='container landing-page'>
-            <h1>Welcome to My Movie Lookup</h1>
-            <form onSubmit={event => {
+        <div className='container'>
+            <div className='top-half'>
+                <h1 className='landing-title'>Welcome to My Movie Lookup</h1>
+            </div>
+            <form className='search-container' onSubmit={event => {
                 event.preventDefault();
             }} >
-                <div className='search-container'>
-                    <InputGroup>
-                        <Input onChange={titleInputHandler} placeholder='search movie title' />
-                        <Input onChange={yearInputHandler} type='number' placeholder='year' className='yearInput' />
-                        <Button onClick={searchMovie} type='submit' className='search-btn'>Search</Button>
-                    </InputGroup>
-                </div>
+                <InputGroup>
+                    <Input onChange={titleInputHandler} placeholder='search movie title' />
+                    <Input onChange={yearInputHandler} type='number' placeholder='year' className='yearInput' />
+                    <Button onClick={searchMovie} type='submit' color='primary' className='search-btn'>Search</Button>
+                </InputGroup>
             </form>
         </div>
     )

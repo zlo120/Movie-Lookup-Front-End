@@ -1,3 +1,22 @@
+@font-face {
+    font-family: ArchivoBlack;
+    src: url('../fonts/ArchivoBlack-Regular.ttf');
+} 
+
+@font-face {
+    font-family: DarumadropOne;
+    src: url('../fonts/DarumadropOne-Regular.ttf');
+} 
+
+.nav {
+    font-family: DarumadropOne;
+    font-size: 1.2rem;
+    position: absolute;
+    width: 100%;
+    background-color: transparent;
+    top:0;
+}
+
 .site-logo {
     line-height: 4rem;
     padding-left: 5rem;
@@ -12,10 +31,16 @@
 }
 
 .right-side {
+    right: 0%;
     line-height: 4rem;
     display: flex;
     margin: auto;
     margin-right: 2rem;
+}
+
+p#my-account.nav-item{
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 #my-account:hover {

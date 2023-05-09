@@ -41,11 +41,15 @@ function Actor() {
             .then(res => {
                 if (res.error === true && res.message === "JWT token has expired") {
                     navigate('/login');
-                } else {
+                } else {                    
+                    console.log("saving tokens...")
                     localStorage.setItem("bearerToken", res.bearerToken.token);
                     localStorage.setItem("refreshToken", res.refreshToken.token);
                     getActor(searchParams.get("id"), res.bearerToken.token)
-                        .then(res => setActor(res));
+                        .then(res => {
+                            console.log("setting actor from handleExpiredJWT...");
+                            setActor(res)
+                        });
                 }
             })
     }
@@ -53,14 +57,18 @@ function Actor() {
     useEffect(() => {
         let bearerToken = localStorage.getItem("bearerToken");
         let refreshToken = localStorage.getItem("refreshToken");
-        if (searchParams.get("id") !== null && bearerToken !== "null") {
+        if (searchParams.get("id") !== null && bearerToken !== null) {
             const id = searchParams.get("id");
             getActor(id, bearerToken)
                 .then(res => {
                     if (res.error === true && res.message === "JWT token has expired") {
+                        console.log("jwt token has expired...");
                         handleExpiredJWT(refreshToken);
                     } else {
-                        return setActor(res);
+                        console.log("jwt token has expired...");
+                        console.log(res);
+                        setActor(res);
+                        console.log(actor);
                     }
                 })
         }

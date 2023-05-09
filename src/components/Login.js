@@ -10,10 +10,12 @@ function Login() {
     const [userEmail, setUserEmail] = useState([]);
     const [userPassword, setUserPasswordEmail] = useState([]);
     const [visible, setVisible] = useState(false);
+    const [incorrectVisible, setIncorrectVisible] = useState(false);
     const [params, setParams] = useSearchParams();
     const navigate = useNavigate();
 
     const onDismiss = () => setVisible(false);
+    const onIncorrectDismiss = () => setIncorrectVisible(false);
 
     const updateUserEmail = (e) => {
         setUserEmail(e.target.value.toLowerCase());
@@ -40,12 +42,15 @@ function Login() {
         })
             .then(res => res.json())
             .then(res => {
-                localStorage.setItem("bearerToken", res.bearerToken.token);
-                localStorage.setItem("refreshToken", res.refreshToken.token)
+                if (res.message === "Incorrect email or password") {
+                    setVisible(false);
+                    setIncorrectVisible(true);
+                } else {
+                    localStorage.setItem("bearerToken", res.bearerToken.token);
+                    localStorage.setItem("refreshToken", res.refreshToken.token);
+                    navigate("/");
+                }
             })
-            .then(res => {
-                navigate("/");
-            });
     }
 
 
@@ -60,6 +65,9 @@ function Login() {
         <>
             <Alert className='my-alert' color="success" isOpen={visible} toggle={onDismiss}>
                 Your account has been created!
+            </Alert>
+            <Alert className='my-alert' color="danger" isOpen={incorrectVisible} toggle={onIncorrectDismiss}>
+                Incorrect email or password
             </Alert>
             <Form className='form' onSubmit={(event) => {
                 event.preventDefault();

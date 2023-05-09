@@ -22,26 +22,26 @@ function Layout() {
             body: JSON.stringify(body)
         })
 
-        localStorage.setItem("bearerToken", null);
-        localStorage.setItem("refreshToken", null);
+        localStorage.removeItem("bearerToken");
+        localStorage.removeItem("refreshToken");
         navigate("/");
     }
 
     const navigate = useNavigate();
 
-    if (bearerToken !== "null" && refreshToken !== "null") {
+    if (bearerToken !== null && refreshToken !== null) {
         const token = jwt_decode(bearerToken);
         return (
             <>
                 <div className='nav'>
 
-                    <Link className='site-logo nav-item' to="/">My Movie Lookup</Link>
+                    <Link className='site-logo nav-item' to="/">MY MOVIE LOOKUP</Link>
 
                     <div className='right-side'>
-                        <Link className='nav-item' to="/">Home</Link>
-                        <Link className='nav-item' to="/movies">Movies</Link>
+                        <Link className='nav-item' to="/">HOME</Link>
+                        <Link className='nav-item' to="/movies">MOVIES</Link>
                         <p id='my-account' className='nav-item'>{token.email}</p>
-                        <Link className='nav-item' to="/" onClick={handleLogout}>Log Out</Link>
+                        <Link className='nav-item' to="/" onClick={handleLogout}>LOG OUT</Link>
                     </div>
                 </div>
 
@@ -54,13 +54,13 @@ function Layout() {
         <>
             <div className='nav'>
 
-                <Link className='site-logo nav-item' to="/" >My Movie Lookup</Link>
+                <Link className='site-logo nav-item' to="/" >MY MOVIE LOOK UP</Link>
 
                 <div className='right-side'>
-                    <Link className='nav-item' to="/">Home</Link>
-                    <Link className='nav-item' to="/movies">Movies</Link>
-                    <Link className='nav-item' to="/register">Register</Link>
-                    <Link className='nav-item' to="/login">Login</Link>
+                    <Link className='nav-item' to="/">HOME</Link>
+                    <Link className='nav-item' to="/movies">MOVIES</Link>
+                    <Link className='nav-item' to="/register">REGISTER</Link>
+                    <Link className='nav-item' to="/login">LOGIN</Link>
                 </div>
             </div >
 
