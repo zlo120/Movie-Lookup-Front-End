@@ -13,12 +13,12 @@ function MoviesSearch() {
     const [rowData, setRowData] = useState([])
 
     const columns = [
-        { headerName: "Title", field: "title" },
-        { headerName: "Year", field: "year" },
-        { headerName: "Imdb Rating", field: "imdbRating" },
-        { headerName: "Rotten Tomatoes Rating", field: "rottenTomatoesRating" },
-        { headerName: "Metacritic Rating", field: "metacriticRating" },
-        { headerName: "Classification", field: "classification" }
+        { headerName: "Title", field: "title", width: 584.79, sortable: true },
+        { headerName: "Year", field: "year", width: 100, sortable: true },
+        { headerName: "Imdb Rating", field: "imdbRating", width: 120, sortable: true },
+        { headerName: "Rotten Tomatoes Rating", field: "rottenTomatoesRating", width: 200, sortable: true },
+        { headerName: "Metacritic Rating", field: "metacriticRating", width: 170, sortable: true },
+        { headerName: "Classification", field: "classification", width: 120, sortable: true }
     ]
 
     const navigate = useNavigate();
@@ -44,12 +44,20 @@ function MoviesSearch() {
             .then(data => data.data)
             .then(data => {
                 return data.map(movie => {
+                    let rtRating = "";
+                    if (movie.rottenTomatoesRating !== 0) {
+                        console.log("This condition worked")
+                        rtRating = movie.rottenTomatoesRating;
+                    } else {
+                        console.log("This condition didn't work")
+                    }
+
                     return {
                         title: movie.title,
                         year: movie.year,
                         imdbID: movie.imdbID,
                         imdbRating: movie.imdbRating,
-                        rottenTomatoesRating: movie.rottenTomatoesRating,
+                        rottenTomatoesRating: rtRating,
                         metacriticRating: movie.metacriticRating,
                         classification: movie.classification
                     }
@@ -78,13 +86,29 @@ function MoviesSearch() {
             .then(data => data.data)
             .then(data => {
                 return data.map(movie => {
+                    let rtRating = "Not Rated";
+                    let imdbRating = "Not Rated";
+                    let metaRating = "Not Rated"
+
+                    if (movie.rottenTomatoesRating !== null) {
+                        rtRating = movie.rottenTomatoesRating + "%";
+                    }
+
+                    if (movie.imdbRating !== 0) {
+                        imdbRating = movie.imdbRating;
+                    }
+
+                    if (movie.metacriticRating !== null) {
+                        metaRating = movie.metacriticRating + "%";
+                    }
+
                     return {
                         title: movie.title,
                         year: movie.year,
                         imdbID: movie.imdbID,
-                        imdbRating: movie.imdbRating,
-                        rottenTomatoesRating: movie.rottenTomatoesRating,
-                        metacriticRating: movie.metacriticRating,
+                        imdbRating: imdbRating,
+                        rottenTomatoesRating: rtRating,
+                        metacriticRating: metaRating,
                         classification: movie.classification
                     }
                 });
@@ -126,13 +150,12 @@ function MoviesSearch() {
 
             <div
                 className="ag-theme-balham container"
-                style={{ height: "18rem", width: "auto", margin: "auto", marginTop: "3rem", fontSize: "1rem" }}
+                style={{ height: "35rem", width: "auto", margin: "auto", marginTop: "3rem", fontSize: "1rem" }}
             >
                 <AgGridReact
+                    className='myAgGridTable'
                     columnDefs={columns}
                     rowData={rowData}
-                    pagination={true}
-                    paginationPageSize={7}
                     onRowClicked={(row) => navigate(`/movies?id=${row.data.imdbID}`)}
                 />
             </div>

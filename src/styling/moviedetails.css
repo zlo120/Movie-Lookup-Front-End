@@ -1,51 +1,113 @@
+/* Container */
+
 .movie-details-container {
-    display: flex;    
+    display: flex;
     margin-left: 7rem;
     margin-right: 7rem;
     margin-top: 4rem;
 }
-  
-.movie-details-container > div {
+
+.movie-details-container>div {
     margin-top: 1rem;
-    padding: 20px;
 }
+
+/* Movie Details */
 
 .movie-details {
     flex: 2;
     margin-left: 5rem;
+    margin-right: 2rem;
+    background-color: rgb(241, 241, 241);
+    padding: 2rem;
 }
+
+.movie-details .movie-title {
+    margin-top: 0;
+}
+
+p.detail {
+    margin-top: 1rem;
+}
+
+.movie-details .release-year {
+    margin-top: 1rem;
+}
+
+.ratings {
+    display: flex;
+    width: 100%;
+    height: 5rem;
+    margin-top: 2rem;
+    justify-content: center;
+}
+
+.ratings>div {
+    margin-right: 5rem;
+}
+
+.ratings #imdb {
+    background-image: url('../images/imdb-logo.png');
+    background-size: contain;
+    border-radius: 100%;
+    height: 3.5rem;
+    width: 3.5rem;
+}
+
+.ratings #rt {
+    background-image: url('../images/rt-logo.png');
+    background-size: contain;
+    border-radius: 100%;
+    height: 3.5rem;
+    width: 3.5rem;
+}
+
+.ratings #metacritic {
+    background-image: url('../images/metacritic-logo.png');
+    background-size: contain;
+    border-radius: 100%;
+    height: 3.5rem;
+    width: 3.5rem;
+}
+
+#imdb p {
+    text-align: center;
+    margin-top: 4rem;
+}
+
+#rt p {
+    text-align: center;
+    margin-top: 4rem;
+}
+
+#metacritic p {
+    text-align: center;
+    margin-top: 4rem;
+}
+
+/* Movie poster */
 
 .movie-poster {
     flex: 1;
     margin-left: 0px;
+    margin-right: 0rem;
 }
 
-.movie-poster > img {
-    width: 25rem;
+.movie-poster>img {
+    width: 20rem;
 }
 
-.movie-details .movie-title {
-    margin-top: 2rem;
-}
+/* Genre bubbles */
 
 .genres-container {
     display: inline-flex;
+    margin-top: 1rem;
 }
 
 .genres-container .genre-bubble {
-    width: 6rem;     
+    width: 6rem;
     height: 1.75rem;
-    border-radius: 10px;
+    border-radius: 12.5px;
     text-align: center;
-    margin-left: .1rem;
-    margin-right: .1rem;
+    margin-right: .5rem;
     color: white;
-}
-
-.genres-container .red {
-    background-color: red;
-}
-
-.genres-container .green {
-    background-color: green;
 }
