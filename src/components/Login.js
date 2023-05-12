@@ -53,7 +53,6 @@ function Login() {
             })
     }
 
-
     useEffect(() => {
         console.log(params.get('id'));
         if (params.get('id') === 'created') {

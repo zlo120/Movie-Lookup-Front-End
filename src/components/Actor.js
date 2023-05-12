@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { AgGridReact } from "ag-grid-react";
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS } from "chart.js/auto";
+
+import '../styling/principal.css'
+import "ag-grid-community/styles/ag-grid.css"
+import "ag-grid-community/styles/ag-theme-balham.css"
 
 function Actor() {
 
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-    const [actor, setActor] = useState([]);
+    const [principal, setPrincipal] = useState([]);
+    const [movies, setMovies] = useState([]);
+
+    const [graphData, setGraphData] = useState([]);
 
     const getActor = (id, bearerToken) => {
         return fetch(`http://sefdb02.qut.edu.au:3000/people/${id}`, {
@@ -48,12 +58,35 @@ function Actor() {
                     getActor(searchParams.get("id"), res.bearerToken.token)
                         .then(res => {
                             console.log("setting actor from handleExpiredJWT...");
-                            setActor(res)
+                            setPrincipal(res)
                         });
                 }
             })
     }
 
+    const columns = [
+        { headerName: "Role", field: "category", width: 150, sortable: true },
+        { headerName: "Movie", field: "movieName", width: 643, sortable: true },
+        { headerName: "Characters", field: "characters", width: 500, sortable: true }
+    ]
+
+    const data = {
+        labels: movies.map(m => m.movieName),
+        datasets: [
+          {
+            label: 'IMDB Score',
+            data: movies.map(m => m.imdbRating),
+            backgroundColor: [
+              'rgba(149, 163, 234, 0.8)'
+            ],
+            borderColor: [
+              'rgba(48, 71, 197, 0.8)'
+            ],
+            borderWidth: 2
+          }
+        ]
+    };
+    
     useEffect(() => {
         let bearerToken = localStorage.getItem("bearerToken");
         let refreshToken = localStorage.getItem("refreshToken");
@@ -61,22 +94,44 @@ function Actor() {
             const id = searchParams.get("id");
             getActor(id, bearerToken)
                 .then(res => {
+                    console.log(res);
                     if (res.error === true && res.message === "JWT token has expired") {
                         console.log("jwt token has expired...");
                         handleExpiredJWT(refreshToken);
                     } else {
-                        console.log("jwt token has expired...");
-                        console.log(res);
-                        setActor(res);
-                        console.log(actor);
-                    }
+                        setPrincipal(res);
+                        setMovies(res.roles);
+
+                        // Set data for the graph
+
+                    }   
                 })
         }
     }, []);
 
     return (
         <>
-            <h1>{actor.name}</h1>
+        <div className='container details-container'>
+            <h1>{principal.name}</h1>
+            <h3>({principal.birthYear} - {principal.deathYear})</h3>
+
+            <div
+                    className="ag-theme-balham"
+                    style={{ height: "18rem", width: "auto", margin: "auto", marginTop: "3rem", fontSize: "1.2rem" }}
+                >
+                    <AgGridReact
+                        className='myAgGridTable'
+                        columnDefs={columns}
+                        rowData={movies}
+                        pagination={true}
+                        paginationPageSize={7}
+                        onRowClicked={(row) => navigate(`/movies?id=${row.data.movieId}`)}
+                    />
+                </div>
+            <div className='my-chart-container'>
+                <Bar data={data} />
+            </div>
+        </div>
         </>
     );
 }

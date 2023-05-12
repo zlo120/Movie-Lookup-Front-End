@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';                                                                       
 import { InputGroup, Input, Button } from 'reactstrap';
 import { AgGridReact } from "ag-grid-react";
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -10,7 +10,8 @@ import "ag-grid-community/styles/ag-theme-balham.css"
 function MoviesSearch() {
     const [searchContent, setSearchContent] = useState([])
     const [searchYear, setSearchYear] = useState([])
-    const [rowData, setRowData] = useState([])
+    const [movies, setMovies] = useState([])    
+    let url = "http://sefdb02.qut.edu.au:3000/movies/search?";
 
     const columns = [
         { headerName: "Title", field: "title", width: 584.79, sortable: true },
@@ -23,6 +24,12 @@ function MoviesSearch() {
 
     const navigate = useNavigate();
     let [searchParams, setSearchParams] = useSearchParams();
+
+    const searchMovieByPage = (pageNumber) => {
+        return fetch(url + `?page=${pageNumber}`)
+            .then(res => res.json())
+            .then(data => data.data);
+    }
 
     const searchMovie = () => {
         let url = `http://sefdb02.qut.edu.au:3000/movies/search?`;
@@ -46,10 +53,7 @@ function MoviesSearch() {
                 return data.map(movie => {
                     let rtRating = "";
                     if (movie.rottenTomatoesRating !== 0) {
-                        console.log("This condition worked")
                         rtRating = movie.rottenTomatoesRating;
-                    } else {
-                        console.log("This condition didn't work")
                     }
 
                     return {
@@ -63,12 +67,10 @@ function MoviesSearch() {
                     }
                 });
             })
-            .then(movies => setRowData(movies));
+            .then(movies => setMovies(movies));
     }
 
     const initialSearch = () => {
-        let url = `http://sefdb02.qut.edu.au:3000/movies/search?`;
-
         let year = searchParams.get("year");
         let title = searchParams.get("title");
 
@@ -81,7 +83,7 @@ function MoviesSearch() {
         }
 
         console.log(url)
-        fetch(url)
+        return fetch(url)
             .then(res => res.json())
             .then(data => data.data)
             .then(data => {
@@ -113,7 +115,10 @@ function MoviesSearch() {
                     }
                 });
             })
-            .then(movies => setRowData(movies));
+            .then(movies => {
+                setMovies(movies);
+                return movies;
+            });
     }
 
     const titleInputHandler = (e) => {
@@ -123,6 +128,66 @@ function MoviesSearch() {
     const yearInputHandler = (e) => {
         setSearchYear(e.target.value);
     }
+
+    const onGridReady = useCallback((params) => {
+        console.log("useCallBack is ran")
+        const dataSource = {
+            rowCount: undefined,
+            getRows: (params) => {
+                console.log('asking for ' + params.startRow + ' to ' + params.endRow);
+                
+                if (params.startRow !== 0) {                    
+                    let pageNumber = Math.floor(params.startRow / 100);
+                    searchMovieByPage(pageNumber)
+                    .then(data => {
+                
+                        // if on or after the last page, work out the last row.
+                        let lastRow = -1;
+
+                        console.log("data.length")
+                        console.log(data.length)
+
+                        console.log("params.endRow")
+                        console.log(params.endRow)
+
+                        if (data.length <= params.endRow) {
+                            lastRow = data.length;
+                        }
+
+                        console.log("lastRow")
+                        console.log(lastRow)
+
+                        // call the success callback
+                        return params.successCallback(data, lastRow);
+                    })
+                } else {
+                    initialSearch()
+                    .then(data => {
+                
+                        console.log("data.length")
+                        console.log(data.length)
+
+                        console.log("params.endRow")
+                        console.log(params.endRow)
+
+                        // if on or after the last page, work out the last row.
+                        let lastRow = -1;
+                        if (data.length === 100) {
+                            lastRow = data.length;
+                        }
+
+                        console.log("lastRow")
+                        console.log(lastRow)
+
+                        // call the success callback
+                        return params.successCallback(data, lastRow);
+                    })
+                }
+          },
+        };
+        
+        params.api.setDatasource(dataSource);
+    }, []);
 
     useEffect(() => {
         initialSearch();
@@ -150,12 +215,16 @@ function MoviesSearch() {
 
             <div
                 className="ag-theme-balham container"
-                style={{ height: "35rem", width: "auto", margin: "auto", marginTop: "3rem", fontSize: "1rem" }}
+                style={{ height: "30rem", width: "auto", margin: "auto", marginTop: "3rem", fontSize: "1rem" }}
             >
                 <AgGridReact
                     className='myAgGridTable'
                     columnDefs={columns}
-                    rowData={rowData}
+                    rowModelType='infinite'
+                    onGridReady={onGridReady}
+                    pagination
+                    paginationPageSize={100}
+                    cacheBlockSize={100}
                     onRowClicked={(row) => navigate(`/movies?id=${row.data.imdbID}`)}
                 />
             </div>

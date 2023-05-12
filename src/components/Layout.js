@@ -34,7 +34,6 @@ function Layout() {
         return (
             <>
                 <div className='nav'>
-
                     <Link className='site-logo nav-item' to="/">MY MOVIE LOOKUP</Link>
 
                     <div className='right-side'>

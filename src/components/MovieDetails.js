@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styling/moviedetails.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "ag-grid-community/styles/ag-grid.css"
-import "ag-grid-community/styles/ag-theme-balham.css"
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-balham.css";
 import { AgGridReact } from "ag-grid-react";
 
 function MovieDetails(props) {
@@ -18,9 +18,9 @@ function MovieDetails(props) {
     const navigate = useNavigate();
 
     const columns = [
-        { headerName: "Name", field: "name", width: 250 },
-        { headerName: "Category", field: "category", width: 150 },
-        { headerName: "Characters", field: "characters", width: 320 }
+        { headerName: "Name", field: "name", width: 250, sortable: true },
+        { headerName: "Category", field: "category", width: 150, sortable: true },
+        { headerName: "Characters", field: "characters", width: 320, sortable: true }
     ]
 
     useEffect(() => {
@@ -55,6 +55,14 @@ function MovieDetails(props) {
                             if (g === "Biography") {
                                 return (
                                     <div style={{ backgroundColor: "brown" }} className='genre-bubble red'>
+                                        {g}
+                                    </div>
+                                );
+                            }
+
+                            if (g === "Sport") {
+                                return (
+                                    <div style={{ backgroundColor: "green" }} className='genre-bubble red'>
                                         {g}
                                     </div>
                                 );

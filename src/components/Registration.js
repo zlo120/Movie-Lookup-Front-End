@@ -57,17 +57,21 @@ function Register() {
         })
             .then(res => res.json())
             .then(res => {
-                if (res.error === true && res.message === "User already exists") {
+                if (res.error === true) {                    
+                    throw new Error(res.message);
+                }
+
+                if (res.message === "User created") {
+                    navigate('/login?id=created')
+                }                
+            })
+            .catch(error => {
+                if (error.message === "User already exists") {
                     if (matchingPasswordsAlert) {
                         setMatchingPasswordsAlert(false);
                     }
                     setExistsAlertVisible(true);
-                } else if (res.message === "User created") {
-                    navigate('/login?id=created')
                 }
-            })
-            .catch(error => {
-                console.log(error);
             })
     }
 
