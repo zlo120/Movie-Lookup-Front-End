@@ -1,35 +1,55 @@
-import { useEffect, useState, useCallback } from 'react';                                                                       
-import { InputGroup, Input, Button } from 'reactstrap';
+import { useEffect, useState, useCallback } from "react";
+import { InputGroup, Input, Button } from "reactstrap";
 import { AgGridReact } from "ag-grid-react";
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import MovieDetails from './MovieDetails.js'
-import '../styling/searchbar.css'
-import "ag-grid-community/styles/ag-grid.css"
-import "ag-grid-community/styles/ag-theme-balham.css"
+import { useNavigate, useSearchParams } from "react-router-dom";
+import MovieDetails from "./MovieDetails.js";
+import "../styling/searchbar.css";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-balham.css";
 
 function MoviesSearch() {
-    const [searchContent, setSearchContent] = useState([])
-    const [searchYear, setSearchYear] = useState([])
-    const [movies, setMovies] = useState([])    
+    const [searchContent, setSearchContent] = useState([]);
+    const [searchYear, setSearchYear] = useState([]);
+    const [movies, setMovies] = useState([]);
     let url = "http://sefdb02.qut.edu.au:3000/movies/search?";
 
     const columns = [
         { headerName: "Title", field: "title", width: 584.79, sortable: true },
         { headerName: "Year", field: "year", width: 100, sortable: true },
-        { headerName: "Imdb Rating", field: "imdbRating", width: 120, sortable: true },
-        { headerName: "Rotten Tomatoes Rating", field: "rottenTomatoesRating", width: 200, sortable: true },
-        { headerName: "Metacritic Rating", field: "metacriticRating", width: 170, sortable: true },
-        { headerName: "Classification", field: "classification", width: 120, sortable: true }
-    ]
+        {
+            headerName: "Imdb Rating",
+            field: "imdbRating",
+            width: 120,
+            sortable: true,
+        },
+        {
+            headerName: "Rotten Tomatoes Rating",
+            field: "rottenTomatoesRating",
+            width: 200,
+            sortable: true,
+        },
+        {
+            headerName: "Metacritic Rating",
+            field: "metacriticRating",
+            width: 170,
+            sortable: true,
+        },
+        {
+            headerName: "Classification",
+            field: "classification",
+            width: 120,
+            sortable: true,
+        },
+    ];
 
     const navigate = useNavigate();
     let [searchParams, setSearchParams] = useSearchParams();
 
     const searchMovieByPage = (pageNumber) => {
-        return fetch(url + `?page=${pageNumber}`)
-            .then(res => res.json())
-            .then(data => data.data);
-    }
+        return fetch(url + `page=${pageNumber}`)
+            .then((res) => res.json())
+            .then((data) => data.data);
+    };
 
     const searchMovie = () => {
         let url = `http://sefdb02.qut.edu.au:3000/movies/search?`;
@@ -38,19 +58,19 @@ function MoviesSearch() {
         let movieYear = searchYear;
 
         if (movieName !== undefined) {
-            url += `title=${movieName}&`
+            url += `title=${movieName}&`;
         }
 
         if (movieYear !== undefined) {
-            url += `year=${movieYear}&`
+            url += `year=${movieYear}&`;
         }
 
-        console.log(url)
+        console.log(url);
         fetch(url)
-            .then(res => res.json())
-            .then(data => data.data)
-            .then(data => {
-                return data.map(movie => {
+            .then((res) => res.json())
+            .then((data) => data.data)
+            .then((data) => {
+                return data.map((movie) => {
                     let rtRating = "";
                     if (movie.rottenTomatoesRating !== 0) {
                         rtRating = movie.rottenTomatoesRating;
@@ -63,34 +83,34 @@ function MoviesSearch() {
                         imdbRating: movie.imdbRating,
                         rottenTomatoesRating: rtRating,
                         metacriticRating: movie.metacriticRating,
-                        classification: movie.classification
-                    }
+                        classification: movie.classification,
+                    };
                 });
             })
-            .then(movies => setMovies(movies));
-    }
+            .then((movies) => setMovies(movies));
+    };
 
     const initialSearch = () => {
         let year = searchParams.get("year");
         let title = searchParams.get("title");
 
         if (title !== "undefined" && title !== null) {
-            url += `title=${title}&`
+            url += `title=${title}&`;
         }
 
         if (year !== "undefined" && year !== null) {
-            url += `year=${year}&`
+            url += `year=${year}&`;
         }
 
-        console.log(url)
+        console.log(url);
         return fetch(url)
-            .then(res => res.json())
-            .then(data => data.data)
-            .then(data => {
-                return data.map(movie => {
+            .then((res) => res.json())
+            .then((data) => data.data)
+            .then((data) => {
+                return data.map((movie) => {
                     let rtRating = "Not Rated";
                     let imdbRating = "Not Rated";
-                    let metaRating = "Not Rated"
+                    let metaRating = "Not Rated";
 
                     if (movie.rottenTomatoesRating !== null) {
                         rtRating = movie.rottenTomatoesRating + "%";
@@ -111,125 +131,119 @@ function MoviesSearch() {
                         imdbRating: imdbRating,
                         rottenTomatoesRating: rtRating,
                         metacriticRating: metaRating,
-                        classification: movie.classification
-                    }
+                        classification: movie.classification,
+                    };
                 });
             })
-            .then(movies => {
+            .then((movies) => {
                 setMovies(movies);
                 return movies;
             });
-    }
+    };
 
     const titleInputHandler = (e) => {
         setSearchContent(e.target.value.toLowerCase());
-    }
+    };
 
     const yearInputHandler = (e) => {
         setSearchYear(e.target.value);
-    }
+    };
 
-    const onGridReady = useCallback((params) => {
-        console.log("useCallBack is ran")
-        const dataSource = {
-            rowCount: undefined,
-            getRows: (params) => {
-                console.log('asking for ' + params.startRow + ' to ' + params.endRow);
-                
-                if (params.startRow !== 0) {                    
-                    let pageNumber = Math.floor(params.startRow / 100);
-                    searchMovieByPage(pageNumber)
-                    .then(data => {
-                
+    const dataSource = {
+        getRows: (params) => {
+            if (params.startRow !== 0) {
+                let pageNumber = Math.floor(params.startRow / 100) + 1;
+                searchMovieByPage(pageNumber)
+                    .then((data) => {
                         // if on or after the last page, work out the last row.
                         let lastRow = -1;
 
-                        console.log("data.length")
-                        console.log(data.length)
-
-                        console.log("params.endRow")
-                        console.log(params.endRow)
-
-                        if (data.length <= params.endRow) {
-                            lastRow = data.length;
+                        if (pageNumber === 122) {
+                            lastRow = 12100 + data.length;
                         }
-
-                        console.log("lastRow")
-                        console.log(lastRow)
 
                         // call the success callback
                         return params.successCallback(data, lastRow);
                     })
-                } else {
-                    initialSearch()
-                    .then(data => {
-                
-                        console.log("data.length")
-                        console.log(data.length)
-
-                        console.log("params.endRow")
-                        console.log(params.endRow)
-
+                    .catch((error) => {
+                        console.error(error);
+                        params.failCallback();
+                    });
+            } else {
+                searchMovieByPage(1)
+                    .then((data) => {
                         // if on or after the last page, work out the last row.
                         let lastRow = -1;
-                        if (data.length === 100) {
-                            lastRow = data.length;
-                        }
-
-                        console.log("lastRow")
-                        console.log(lastRow)
 
                         // call the success callback
                         return params.successCallback(data, lastRow);
                     })
-                }
-          },
-        };
-        
+                    .catch((error) => {
+                        console.error(error);
+                        params.failCallback();
+                    });
+            }
+        },
+    };
+
+    const onGridReady = (params) => {
         params.api.setDatasource(dataSource);
-    }, []);
-
-    useEffect(() => {
-        initialSearch();
-    }, []);
+    };
 
     if (searchParams.get("id") !== null) {
-        return (
-            <MovieDetails id={searchParams.get("id")} />
-        )
+        return <MovieDetails id={searchParams.get("id")} />;
     }
 
     return (
         <>
-            <form className='container' onSubmit={event => {
-                event.preventDefault();
-            }}
-                style={{ marginTop: "5rem" }}>
+            <form
+                className="container"
+                onSubmit={(event) => {
+                    event.preventDefault();
+                }}
+                style={{ marginTop: "5rem" }}
+            >
                 <h2>Search by movie title</h2>
                 <InputGroup>
-                    <Input onChange={titleInputHandler} placeholder='search movie title' />
-                    <Input onChange={yearInputHandler} type='number' placeholder='year' className='yearInput' />
-                    <Button onClick={searchMovie} type='submit' className='search-btn'>Search</Button>
+                    <Input
+                        onChange={titleInputHandler}
+                        placeholder="search movie title"
+                    />
+                    <Input
+                        onChange={yearInputHandler}
+                        type="number"
+                        placeholder="year"
+                        className="yearInput"
+                    />
+                    <Button onClick={searchMovie} type="submit" className="search-btn">
+                        Search
+                    </Button>
                 </InputGroup>
             </form>
 
             <div
                 className="ag-theme-balham container"
-                style={{ height: "30rem", width: "auto", margin: "auto", marginTop: "3rem", fontSize: "1rem" }}
+                style={{
+                    height: "30rem",
+                    width: "auto",
+                    margin: "auto",
+                    marginTop: "3rem",
+                    fontSize: "1rem",
+                }}
             >
                 <AgGridReact
-                    className='myAgGridTable'
                     columnDefs={columns}
-                    rowModelType='infinite'
+                    rowModelType="infinite"
                     onGridReady={onGridReady}
-                    pagination
-                    paginationPageSize={100}
+                    rowBuffer={0}
                     cacheBlockSize={100}
+                    cacheOverflowSize={2}
+                    maxBlocksInCache={10}
                     onRowClicked={(row) => navigate(`/movies?id=${row.data.imdbID}`)}
                 />
             </div>
         </>
-    )
+    );
 }
 
-export default MoviesSearch
+export default MoviesSearch;

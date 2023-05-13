@@ -51,7 +51,7 @@ function Actor() {
             .then(res => {
                 if (res.error === true && res.message === "JWT token has expired") {
                     navigate('/login');
-                } else {                    
+                } else {
                     console.log("saving tokens...")
                     localStorage.setItem("bearerToken", res.bearerToken.token);
                     localStorage.setItem("refreshToken", res.refreshToken.token);
@@ -73,20 +73,20 @@ function Actor() {
     const data = {
         labels: movies.map(m => m.movieName),
         datasets: [
-          {
-            label: 'IMDB Score',
-            data: movies.map(m => m.imdbRating),
-            backgroundColor: [
-              'rgba(149, 163, 234, 0.8)'
-            ],
-            borderColor: [
-              'rgba(48, 71, 197, 0.8)'
-            ],
-            borderWidth: 2
-          }
+            {
+                label: 'IMDB Score',
+                data: movies.map(m => m.imdbRating),
+                backgroundColor: [
+                    'rgba(149, 163, 234, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(48, 71, 197, 0.8)'
+                ],
+                borderWidth: 2
+            }
         ]
     };
-    
+
     useEffect(() => {
         let bearerToken = localStorage.getItem("bearerToken");
         let refreshToken = localStorage.getItem("refreshToken");
@@ -104,18 +104,18 @@ function Actor() {
 
                         // Set data for the graph
 
-                    }   
+                    }
                 })
         }
     }, []);
 
     return (
         <>
-        <div className='container details-container'>
-            <h1>{principal.name}</h1>
-            <h3>({principal.birthYear} - {principal.deathYear})</h3>
+            <div className='container details-container'>
+                <h1>{principal.name}</h1>
+                <h3>({principal.birthYear} - {principal.deathYear})</h3>
 
-            <div
+                <div
                     className="ag-theme-balham"
                     style={{ height: "18rem", width: "auto", margin: "auto", marginTop: "3rem", fontSize: "1.2rem" }}
                 >
@@ -128,10 +128,10 @@ function Actor() {
                         onRowClicked={(row) => navigate(`/movies?id=${row.data.movieId}`)}
                     />
                 </div>
-            <div className='my-chart-container'>
-                <Bar data={data} />
+                <div className='my-chart-container'>
+                    <Bar data={data} />
+                </div>
             </div>
-        </div>
         </>
     );
 }
