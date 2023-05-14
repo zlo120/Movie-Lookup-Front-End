@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { InputGroup, Input, Button } from "reactstrap";
+import { InputGroup, Input, Button, Alert } from "reactstrap";
 import { AgGridReact } from "ag-grid-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import MovieDetails from "./MovieDetails.js";
@@ -11,10 +11,14 @@ function MoviesSearch() {
     const [searchContent, setSearchContent] = useState([]);
     const [searchYear, setSearchYear] = useState([]);
     const [movies, setMovies] = useState([]);
-    let url = "http://sefdb02.qut.edu.au:3000/movies/search?";
+    const [noMatchesVisible, setNoMatchesVisible] = useState(false);
+    const [wrongFormatVisible, setWrongFormatVisible] = useState(false);
+
+    const onNoMatchesDismiss = () => setNoMatchesVisible(false);
+    const onWrongFormatDismiss = () => setWrongFormatVisible(false);
 
     const columns = [
-        { headerName: "Title", field: "title", width: 584.79, sortable: true },
+        { headerName: "Title", field: "title", width: 570, sortable: true },
         { headerName: "Year", field: "year", width: 100, sortable: true },
         {
             headerName: "Imdb Rating",
@@ -45,100 +49,23 @@ function MoviesSearch() {
     const navigate = useNavigate();
     let [searchParams, setSearchParams] = useSearchParams();
 
-    const searchMovieByPage = (pageNumber) => {
-        return fetch(url + `page=${pageNumber}`)
-            .then((res) => res.json())
-            .then((data) => data.data);
-    };
+    // pageNumber should never be undefined, should always be at least = 1
+    const searchMovie = (pageNumber, movieTitle, year) => {
 
-    const searchMovie = () => {
-        let url = `http://sefdb02.qut.edu.au:3000/movies/search?`;
+        let url = "http://sefdb02.qut.edu.au:3000/movies/search?";
 
-        let movieName = searchContent;
-        let movieYear = searchYear;
+        url += `page=${pageNumber}`
 
-        if (movieName !== undefined) {
-            url += `title=${movieName}&`;
+        if (movieTitle !== undefined && movieTitle !== "undefined") {
+            url += `&title=${movieTitle}`
         }
 
-        if (movieYear !== undefined) {
-            url += `year=${movieYear}&`;
+        if (year !== undefined && year !== "undefined") {
+            url += `&year=${year}`
         }
 
-        console.log(url);
-        fetch(url)
-            .then((res) => res.json())
-            .then((data) => data.data)
-            .then((data) => {
-                return data.map((movie) => {
-                    let rtRating = "";
-                    if (movie.rottenTomatoesRating !== 0) {
-                        rtRating = movie.rottenTomatoesRating;
-                    }
-
-                    return {
-                        title: movie.title,
-                        year: movie.year,
-                        imdbID: movie.imdbID,
-                        imdbRating: movie.imdbRating,
-                        rottenTomatoesRating: rtRating,
-                        metacriticRating: movie.metacriticRating,
-                        classification: movie.classification,
-                    };
-                });
-            })
-            .then((movies) => setMovies(movies));
-    };
-
-    const initialSearch = () => {
-        let year = searchParams.get("year");
-        let title = searchParams.get("title");
-
-        if (title !== "undefined" && title !== null) {
-            url += `title=${title}&`;
-        }
-
-        if (year !== "undefined" && year !== null) {
-            url += `year=${year}&`;
-        }
-
-        console.log(url);
         return fetch(url)
-            .then((res) => res.json())
-            .then((data) => data.data)
-            .then((data) => {
-                return data.map((movie) => {
-                    let rtRating = "Not Rated";
-                    let imdbRating = "Not Rated";
-                    let metaRating = "Not Rated";
-
-                    if (movie.rottenTomatoesRating !== null) {
-                        rtRating = movie.rottenTomatoesRating + "%";
-                    }
-
-                    if (movie.imdbRating !== 0) {
-                        imdbRating = movie.imdbRating;
-                    }
-
-                    if (movie.metacriticRating !== null) {
-                        metaRating = movie.metacriticRating + "%";
-                    }
-
-                    return {
-                        title: movie.title,
-                        year: movie.year,
-                        imdbID: movie.imdbID,
-                        imdbRating: imdbRating,
-                        rottenTomatoesRating: rtRating,
-                        metacriticRating: metaRating,
-                        classification: movie.classification,
-                    };
-                });
-            })
-            .then((movies) => {
-                setMovies(movies);
-                return movies;
-            });
+            .then((res) => res.json());
     };
 
     const titleInputHandler = (e) => {
@@ -149,40 +76,94 @@ function MoviesSearch() {
         setSearchYear(e.target.value);
     };
 
+    const handleSubmit = () => {
+        navigate(`/movies?page=1&title=${searchContent}&year=${searchYear}`);
+        navigate(0);
+    }
+
     const dataSource = {
         getRows: (params) => {
-            if (params.startRow !== 0) {
-                let pageNumber = Math.floor(params.startRow / 100) + 1;
-                searchMovieByPage(pageNumber)
-                    .then((data) => {
-                        // if on or after the last page, work out the last row.
-                        let lastRow = -1;
+            let pageNumber = 1;
 
-                        if (pageNumber === 122) {
-                            lastRow = 12100 + data.length;
+            if (params.startRow !== 0) {
+                pageNumber = Math.floor(params.startRow / 100) + 1;
+            }
+
+            let movieName = searchParams.get("title");
+            let movieYear = searchParams.get("year");
+
+            if (movieName === "undefined" || movieName === null) {
+                movieName = undefined;
+            } else {
+                setSearchContent(movieName);
+            }
+
+            if (movieYear === "movieYear" || movieYear === null) {
+                movieYear = undefined;
+            } else {
+                setSearchYear(movieYear);
+            }
+
+            searchMovie(pageNumber, movieName, movieYear)
+                .then((response) => {
+
+                    if (response.error === true) {
+                        throw new Error(response.message);
+                    }
+
+                    if (response.pagination.total == 0) {
+                        setNoMatchesVisible(true);
+                        params.successCallback([], 0);
+                    }
+
+                    let data = response.data.map(movie => {
+                        let rtRating = "Not Rated";
+                        let imdbRating = "Not Rated";
+                        let metaRating = "Not Rated";
+
+                        if (movie.rottenTomatoesRating !== null) {
+                            rtRating = movie.rottenTomatoesRating + "%";
                         }
 
-                        // call the success callback
-                        return params.successCallback(data, lastRow);
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                        params.failCallback();
-                    });
-            } else {
-                searchMovieByPage(1)
-                    .then((data) => {
-                        // if on or after the last page, work out the last row.
-                        let lastRow = -1;
+                        if (movie.imdbRating !== 0) {
+                            imdbRating = movie.imdbRating;
+                        }
 
-                        // call the success callback
-                        return params.successCallback(data, lastRow);
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                        params.failCallback();
+                        if (movie.metacriticRating !== null) {
+                            metaRating = movie.metacriticRating + "%";
+                        }
+
+                        return {
+                            title: movie.title,
+                            year: movie.year,
+                            imdbID: movie.imdbID,
+                            imdbRating: imdbRating,
+                            rottenTomatoesRating: rtRating,
+                            metacriticRating: metaRating,
+                            classification: movie.classification,
+                        };
                     });
-            }
+
+                    let lastPage = response.pagination.lastPage;
+
+                    // if on or after the last page, work out the last row.
+                    let lastRow = -1;
+
+                    if (pageNumber === lastPage) {
+                        lastRow = response.pagination.total;
+                    }
+
+                    // call the success callback
+                    return params.successCallback(data, lastRow);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    if (error.message === "Invalid year format. Format must be yyyy.") {
+                        setNoMatchesVisible(false);
+                        setWrongFormatVisible(true);
+                    }
+                    params.failCallback();
+                });
         },
     };
 
@@ -203,19 +184,27 @@ function MoviesSearch() {
                 }}
                 style={{ marginTop: "5rem" }}
             >
+                <Alert color="danger" isOpen={wrongFormatVisible} toggle={onWrongFormatDismiss}>
+                    Invalid year format. Format must be yyyy
+                </Alert>
+                <Alert color="danger" isOpen={noMatchesVisible} toggle={onNoMatchesDismiss}>
+                    No movie matches that search
+                </Alert>
                 <h2>Search by movie title</h2>
                 <InputGroup>
                     <Input
                         onChange={titleInputHandler}
                         placeholder="search movie title"
+                        value={searchContent}
                     />
                     <Input
                         onChange={yearInputHandler}
                         type="number"
                         placeholder="year"
                         className="yearInput"
+                        value={searchYear}
                     />
-                    <Button onClick={searchMovie} type="submit" className="search-btn">
+                    <Button onClick={handleSubmit} color="primary" type="submit" className="search-btn">
                         Search
                     </Button>
                 </InputGroup>

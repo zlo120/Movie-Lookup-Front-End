@@ -2,8 +2,27 @@
     margin-top: 6rem;
 }
 
-.my-chart-container{
+.my-chart-container {
     margin: auto;
     padding: 4rem;
     width: 100%;
+}
+
+.error-container {
+    margin-top: 8rem;
+}
+
+.error-container>h1 {
+    text-align: center;
+    font-family: Montserrat;
+}
+
+.login-signup {
+    display: flex;
+    justify-content: center;
+}
+
+.login-signup>button {
+    font-family: Montserrat;
+    margin-right: 1rem;
 }

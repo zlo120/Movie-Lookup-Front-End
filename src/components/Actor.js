@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from "reactstrap";
 import { AgGridReact } from "ag-grid-react";
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from "chart.js/auto";
@@ -49,8 +50,8 @@ function Actor() {
                 return res;
             })
             .then(res => {
-                if (res.error === true && res.message === "JWT token has expired") {
-                    navigate('/login');
+                if (res.error === true) {
+                    throw new Error(res.message);
                 } else {
                     console.log("saving tokens...")
                     localStorage.setItem("bearerToken", res.bearerToken.token);
@@ -62,6 +63,19 @@ function Actor() {
                         });
                 }
             })
+            .catch(error => {
+                if (error.message === "JWT token has expired") {
+                    navigate(`/login?id=relogin&actor=${searchParams.get("id")}`)
+                }
+            })
+    }
+
+    const handleLoginBtn = (e) => {
+        navigate(`/login?actor=${searchParams.get("id")}`)
+    }
+
+    const handleSignupBtn = (e) => {
+        navigate(`/register?actor=${searchParams.get("id")}`)
     }
 
     const columns = [
@@ -108,6 +122,21 @@ function Actor() {
                 })
         }
     }, []);
+
+    if (localStorage.getItem("bearerToken") === null) {
+        return (
+            <>
+                <div className='container error-container'>
+                    <h1>Oops you have to be logged in to use this page!</h1>
+                    <hr></hr>
+                    <div className='login-signup'>
+                        <Button className='login-btn' onClick={handleLoginBtn}>Log In</Button>
+                        <Button className='signup-btn' onClick={handleSignupBtn}>Register</Button>
+                    </div>
+                </div>
+            </>
+        )
+    }
 
     return (
         <>

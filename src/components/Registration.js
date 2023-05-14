@@ -1,11 +1,12 @@
 import { InputGroup, Input, Button, InputGroupText, FormGroup, Form, Label, Col, Alert } from 'reactstrap';
 import "ag-grid-community/styles/ag-grid.css"
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useState } from 'react';
 import '../styling/form.css'
 import '../styling/alert.css'
 
 function Register() {
+    const [params, setParams] = useSearchParams();
     const [userEmail, setUserEmail] = useState([]);
     const [userPassword, setUserPasswordEmail] = useState([]);
     const [userConfirmationPassword, setUserConfirmationPassword] = useState([]);
@@ -62,6 +63,10 @@ function Register() {
                 }
 
                 if (res.message === "User created") {
+                    let actorId = params.get("actor");
+                    if (actorId) {
+                        return navigate(`/login?id=created&actor=${actorId}`);
+                    }
                     navigate('/login?id=created')
                 }
             })
@@ -89,13 +94,14 @@ function Register() {
                 event.preventDefault();
             }}>
                 <h2>Register</h2>
+                <hr></hr>
                 <FormGroup row>
                     <Label for="email" sm={2}>
                         Email
                     </Label>
                     <Col sm={10}>
                         <InputGroup>
-                            <InputGroupText>@</InputGroupText>
+                            <InputGroupText>&#128231;</InputGroupText>
                             <Input id='email' type='email' onChange={updateUserEmail} required />
                         </InputGroup>
                     </Col>
@@ -124,6 +130,14 @@ function Register() {
                         </InputGroup>
                     </Col>
                 </FormGroup>
+                <a href="" onClick={() => {
+                    let actorId = params.get("actor");
+                    if (actorId) {
+                        return navigate(`/login?actor=${actorId}`);
+                    } else {
+                        return navigate(`/login`);
+                    }
+                }}>Already have an acount? Log in here</a>
                 <Button type='submit' onClick={handleSubmit} className='form-submit-btn'>Submit</Button>
             </Form>
         </>

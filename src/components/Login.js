@@ -11,11 +11,13 @@ function Login() {
     const [userPassword, setUserPasswordEmail] = useState([]);
     const [visible, setVisible] = useState(false);
     const [incorrectVisible, setIncorrectVisible] = useState(false);
+    const [relogin, setRelogin] = useState(false);
     const [params, setParams] = useSearchParams();
     const navigate = useNavigate();
 
     const onDismiss = () => setVisible(false);
     const onIncorrectDismiss = () => setIncorrectVisible(false);
+    const onReloginDismiss = () => setRelogin(false);
 
     const updateUserEmail = (e) => {
         setUserEmail(e.target.value.toLowerCase());
@@ -44,11 +46,16 @@ function Login() {
             .then(res => {
                 if (res.message === "Incorrect email or password") {
                     setVisible(false);
+                    setRelogin(false);
                     setIncorrectVisible(true);
                 } else {
                     localStorage.setItem("bearerToken", res.bearerToken.token);
                     localStorage.setItem("refreshToken", res.refreshToken.token);
-                    navigate("/");
+                    let actorId = params.get("actor");
+                    if (actorId) {
+                        return navigate(`/actor?id=${actorId}`);
+                    }
+                    return navigate("/");
                 }
             })
     }
@@ -57,6 +64,8 @@ function Login() {
         console.log(params.get('id'));
         if (params.get('id') === 'created') {
             setVisible(true);
+        } else if (params.get('id') === 'relogin') {
+            setRelogin(true);
         }
     }, [])
 
@@ -68,17 +77,21 @@ function Login() {
             <Alert className='my-alert' color="danger" isOpen={incorrectVisible} toggle={onIncorrectDismiss}>
                 Incorrect email or password
             </Alert>
+            <Alert className='my-alert' color="danger" isOpen={relogin} toggle={onReloginDismiss}>
+                You must sign in to your account again to access this page
+            </Alert>
             <Form className='form' onSubmit={(event) => {
                 event.preventDefault();
             }}>
                 <h2>Log In</h2>
+                <hr></hr>
                 <FormGroup row>
                     <Label for="email" sm={2}>
                         Email
                     </Label>
                     <Col sm={10}>
                         <InputGroup>
-                            <InputGroupText>@</InputGroupText>
+                            <InputGroupText>&#128231;</InputGroupText>
                             <Input id='email' type='email' onChange={updateUserEmail} required />
                         </InputGroup>
                     </Col>
@@ -95,6 +108,14 @@ function Login() {
                         </InputGroup>
                     </Col>
                 </FormGroup>
+                <a href="" onClick={() => {
+                    let actorId = params.get("actor");
+                    if (actorId) {
+                        return navigate(`/register?actor=${actorId}`);
+                    } else {
+                        return navigate(`/register`);
+                    }
+                }}> Don't have an account? Register here</a>
                 <Button type='submit' onClick={handleLogin} className='form-submit-btn'>Login</Button>
             </Form>
         </>
