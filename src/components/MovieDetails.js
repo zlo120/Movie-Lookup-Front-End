@@ -276,7 +276,7 @@ function MovieDetails(props) {
             </div>
 
             <div className='movie-poster'>
-                <img src={movie.poster} alt={movie.title} />
+                <img src={movie.poster} alt={movie.title + " movie poster"} />
             </div>
         </div >
     )
