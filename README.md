@@ -1,4 +1,4 @@
-# React application
+# React Application
 This react application utilises API calls to a back end server for querying a database.
 
 # Purpose
